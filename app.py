@@ -4,11 +4,13 @@ import sys
 import json
 import requests
 
-from settings import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
 from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
 
 app = Flask(__name__)
+
+TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
+TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
 
 @app.route('/')
 def hello_world():
