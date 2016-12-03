@@ -42,6 +42,7 @@ def send_message(recipient_id, message_text):
     log('sending message to {recipient}: {text}'.format(recipient=recipient_id, text=message_text))
 
     # access token and other parameters
+    log('access token: {access_token}'.format(access_token=os.environ['PAGE_ACCESS_TOKEN']))
     params = {
         'access_token': os.environ['PAGE_ACCESS_TOKEN']
     }
