@@ -4,6 +4,10 @@ import sys
 import json
 import requests
 
+from settings import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
+from twilio import TwilioRestException
+from twilio.rest import TwilioRestClient
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -35,7 +39,17 @@ def webhook():
                     message_text = messaging_event['message']['text']
                     # send the same message back to the user
                     send_message(sender_id, message_text)
+                    send_sms(message_text)
     return 'ok', 200
+
+def send_sms(message):
+    if message:
+        client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+        try:
+            message = client.messages.create(body=message, to='+17206098729', from='+19286429430')
+        except TwilioRestException as e:
+            log(e)
 
 
 def send_message(recipient_id, message_text):
