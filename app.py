@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import requests
+import re
 
 from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
@@ -39,22 +40,51 @@ def webhook():
                     sender_id = messaging_event['sender']['id']
                     recipient_id = messaging_event['recipient']['id']
                     message_text = messaging_event['message']['text']
-                    # send the same message back to the user
-                    send_message(sender_id, message_text)
-                    send_sms(message_text)
+                    # # send the same message back to the user
+                    # send_message(sender_id, message_text)
+                    # send an SMS if the message is valid
+                    is_message_sent, reason = _send_message_if_valid_message_request(message_text)
+
+                    if not is_message_sent:
+                        # send an error message
+                        response_message_text = 'Invalid Request. {reason}'.format(reason=reason)
+
+                        _send_message(sender_id, response_message_text)
+                    else:
+                        # send a response message
+                        _send_message(sender_id, reason)
+
     return 'ok', 200
 
-def send_sms(message):
+def _send_message_if_valid_message_request(message):
+    if not message:
+        return (False, 'Empty Message')
+    message = message.split(':')
+    if len(message) == 0:
+        return (False, 'Incorrect Format for sending a message')
+    phone_number = message[0]
+
+    match = re.search('^(\+[0-9]{1,3})?[0-9]{10}$', phone_number)
+    if not match:
+        return (False, 'Phone Number is not valid')
+    message_body = ''.join(message[1:])
+
+    log('Phone Number: {phone_number}, Message Text: {message_body}'.format(phone_number=phone_number, message_body=message_body))
+
+    _send_sms(phone_number, message_body)
+    return (True, 'Message sent to {phone_number}'.format(phone_number=phone_number))
+
+def _send_sms(phone_number, message):
     if message:
         client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
         try:
-            message = client.messages.create(body=message, to='+17206098729', from_='+19286429430')
+            message = client.messages.create(body=message, to=phone_number, from_='+19286429430')
         except TwilioRestException as e:
             log(e)
 
 
-def send_message(recipient_id, message_text):
+def _send_message(recipient_id, message_text):
     log('sending message to {recipient}: {text}'.format(recipient=recipient_id, text=message_text))
 
     # access token and other parameters
