@@ -34,7 +34,7 @@ def webhook():
                     recipient_id = messaging_event['recipient']['id']
                     message_text = messaging_event['message']['text']
                     # send the same message back to the user
-                    send_message(recipient_id, message_text)
+                    send_message(sender_id, message_text)
     return 'ok', 200
 
 
@@ -42,7 +42,7 @@ def send_message(recipient_id, message_text):
     log('sending message to {recipient}: {text}'.format(recipient=recipient_id, text=message_text))
 
     # access token and other parameters
-    log('access token: {access_token}'.format(access_token=os.environ['PAGE_ACCESS_TOKEN']))
+    # log('access token: {access_token}'.format(access_token=os.environ['PAGE_ACCESS_TOKEN']))
     params = {
         'access_token': os.environ['PAGE_ACCESS_TOKEN']
     }
