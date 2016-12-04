@@ -75,6 +75,7 @@ def _send_message_if_valid_message_request(message):
     return (True, 'Message sent to {phone_number}'.format(phone_number=phone_number))
 
 def _send_sms(phone_number, message):
+    log('sending sms to {phone_number}'.format(phone_number=phone_number))
     if message:
         client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
